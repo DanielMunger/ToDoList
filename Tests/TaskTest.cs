@@ -6,11 +6,11 @@ using System.Data.SqlClient;
 
 namespace ToDoList
 {
-  public class ToDoTest : IDispsable
+  public class ToDoTest : IDisposable
   {
     public ToDoTest()
     {
-      DBConfiguration.ConnectionString = "Data Source=(localdb)\\mssqllocaldb;Initial Catalog=todo_test;Intergrated Security=SSPI;"
+      DBConfiguration.ConnectionString = "Data Source=(localdb)\\mssqllocaldb;Initial Catalog=todo_test;Integrated Security=SSPI;";
     }
     public void Dispose()
     {
@@ -64,6 +64,17 @@ namespace ToDoList
 
       //Assert
       Assert.Equal(testId, result);
+    }
+    [Fact]
+    public void Test_Find_FindsTaskInDatabase()
+    {
+      //Arrange
+      Task testTask = new Task("Mow the lawn");
+      testTask.Save();
+
+      Task foundTask = Task.Find(testTask.GetId());
+
+      Assert.Equal(testTask, foundTask);
     }
   }
 }

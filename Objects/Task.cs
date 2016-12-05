@@ -35,7 +35,7 @@ namespace ToDoList
       SqlConnection conn = DB.Connection();
       conn.Open();
 
-      SqlCommand cmd = new SqlCommand("Insert INTO tasks (description) OUT INSERTED.id VALUES (@TaskDescription);", conn);
+      SqlCommand cmd = new SqlCommand("Insert INTO tasks (description) OUTPUT INSERTED.id VALUES (@TaskDescription);", conn);
 
       SqlParameter descriptionParameter = new SqlParameter();
       descriptionParameter.ParameterName = "@TaskDescription";
@@ -55,6 +55,38 @@ namespace ToDoList
       {
         conn.Close();
       }
+    }
+
+    public static Task Find(int id)
+    {
+      SqlConnection conn = DB.Connection();
+      conn.Open();
+
+      SqlCommand cmd = new SqlCommand("Select * FROM tasks WHERE id = @TaskId;", conn);
+      SqlParameter taskIdParameter = SqlParameter();
+      taskIdParameter.ParameterName = "@TaskId";
+      taskIdParameter.Value = id.ToString();
+      cmd.Parameters.Add(taskIdParameter);
+      SqlDataReader rdr = cmd.ExecuteReader();
+
+      int foundTaskId = 0;
+      string foundTaskDescription = null;
+      while(rdr.Read())
+      {
+        foundTaskId = rdr.GetInt32(0);
+        foundTaskDescription = rdr.GetString(1);
+      }
+      Task foundTask = new Task(foundTaskDescription, foundTaskId);
+
+      if(rdr != null)
+      {
+        rdr.Close();
+      }
+      if(conn != null)
+      {
+        conn.Close();
+      }
+      return foundTask;
     }
 
     public int GetId()
@@ -80,7 +112,7 @@ namespace ToDoList
 
       while(rdr.Read())
       {
-        int taskID = rdr.GetInt32(0);
+        int taskId = rdr.GetInt32(0);
         string taskDescription = rdr.GetString(1);
         Task newTask = new Task(taskDescription, taskId);
         allTasks.Add(newTask);
